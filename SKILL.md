@@ -10,12 +10,13 @@ Run each step fully before starting the next. Do not skip any step even if a pre
 
 ### Step 1 — Time Capsule (`/time-capsule`)
 
-Invoke the time-capsule skill. It reviews the full conversation and saves everything worth keeping:
+Invoke the time-capsule skill. It first reads all existing memory files, then reviews the full conversation and saves everything worth keeping:
 - Finalized architecture/tech decisions
 - User preferences and feedback (corrections, confirmations)
 - Future TODOs and pre-launch checklist items
 - Non-obvious commands, patterns, or gotchas discovered
 - Security warnings or deferred suggestions
+- Anything stale or wrong in existing memory gets corrected in place
 
 Wait for time-capsule to finish and report before proceeding.
 
@@ -25,13 +26,7 @@ Invoke the session-summary skill. Produces a human-readable digest of what was a
 
 Wait for session-summary to finish before proceeding.
 
-### Step 3 — Sync Memory (`/sync-memory`)
-
-Invoke the sync-memory skill. Ensures all memory files written by time-capsule are consistent, the MEMORY.md index is up to date, and any stale or duplicate entries are resolved.
-
-Wait for sync-memory to finish before proceeding.
-
-### Step 4 — Gitmit (`/gitmit`)
+### Step 3 — Gitmit (`/gitmit`)
 
 Invoke the gitmit skill. Stages all changes, writes a detailed commit message from the actual diff, and pushes to remote.
 
@@ -49,10 +44,10 @@ After all four steps complete, output a single terse summary:
 
 ```
 Session closed.
-Memory: [what was saved or "already up to date"]
+Memory:  [what was saved or "already up to date"]
 Summary: [one line from session-summary]
-Commit: [short hash + first line] or "Nothing to commit"
-Push: [branch → remote] or "Skipped"
+Commit:  [short hash + first line] or "Nothing to commit"
+Push:    [branch → remote] or "Skipped"
 ```
 
 ---
