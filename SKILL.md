@@ -1,6 +1,16 @@
 # Last Terminal — End-of-Session Power Sequence
 
-Triggered by `/last-terminal` or "use last-terminal" or "we're done" or "end session". Runs the full shutdown sequence: memory capture → session summary → memory sync → commit & push. Leaves no loose ends.
+Triggered by `/last-terminal` or "use last-terminal" or "we're done" or "end session". Runs the full shutdown sequence: session summary → commit & push. Leaves no loose ends.
+
+---
+
+## Pre-flight check
+
+**Before starting the sequence:** If the conversation contains pasted context (code, task description, feature request, bug report, or any work specification) that has not yet been acted upon, **pause and ask the user to confirm** whether they want to:
+1. Work on that context first (return to work mode)
+2. Close the session as-is (proceed with last-terminal sequence)
+
+Do not assume. Pasted context = potential work. If uncertain whether context is "new work" vs "historical recap", ask.
 
 ---
 
@@ -8,25 +18,13 @@ Triggered by `/last-terminal` or "use last-terminal" or "we're done" or "end ses
 
 Run each step fully before starting the next. Do not skip any step even if a previous one produces no output.
 
-### Step 1 — Time Capsule (`/time-capsule`)
+### Step 1 — Session Summary (`/memento`)
 
-Invoke the time-capsule skill. It first reads all existing memory files, then reviews the full conversation and saves everything worth keeping:
-- Finalized architecture/tech decisions
-- User preferences and feedback (corrections, confirmations)
-- Future TODOs and pre-launch checklist items
-- Non-obvious commands, patterns, or gotchas discovered
-- Security warnings or deferred suggestions
-- Anything stale or wrong in existing memory gets corrected in place
+Invoke the memento skill. It reviews all available context and produces a structured human-readable digest of what was built, fixed, decided, and deferred.
 
-Wait for time-capsule to finish and report before proceeding.
+Wait for memento to finish and output the summary before proceeding.
 
-### Step 2 — Session Summary (`/session-summary`)
-
-Invoke the session-summary skill. Produces a human-readable digest of what was accomplished this session: what was built, what was fixed, what was decided, what's still pending.
-
-Wait for session-summary to finish before proceeding.
-
-### Step 3 — Gitmit (`/gitmit`)
+### Step 2 — Gitmit (`/gitmit`)
 
 Invoke the gitmit skill. Stages all changes, writes a detailed commit message from the actual diff, and pushes to remote.
 
@@ -40,12 +38,11 @@ Invoke the gitmit skill. Stages all changes, writes a detailed commit message fr
 
 ## Final report
 
-After all four steps complete, output a single terse summary:
+After all steps complete, output a single terse summary:
 
 ```
 Session closed.
-Memory:  [what was saved or "already up to date"]
-Summary: [one line from session-summary]
+Summary: [one line digest]
 Commit:  [short hash + first line] or "Nothing to commit"
 Push:    [branch → remote] or "Skipped"
 ```
@@ -56,7 +53,7 @@ Push:    [branch → remote] or "Skipped"
 
 If any step fails:
 - Report the failure inline with the step name and error
-- Continue to the next step — a failed time-capsule doesn't block gitmit
+- Continue to the next step — a failed memento doesn't block gitmit
 - List failed steps in the final report
 
 ## What NOT to do
@@ -65,3 +62,4 @@ If any step fails:
 - Do not add commentary between steps
 - Do not invent commit messages without reading the diff
 - Do not push if secrets are staged
+- Do not skip `/memento` — call it as a skill, do not inline the summary
